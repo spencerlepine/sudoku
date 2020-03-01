@@ -1,7 +1,14 @@
 import pygame
 import time, sys, random
 from SudokuGenerator import generatePuzzle
-# FIX clickableObj typo
+# Add timer
+# Add mistake counter by state = "WRONG"
+# Clean up code
+# Add input buttons?
+# MAke how to play
+#~~ Speed up the generator, get rid of all prints
+# Look for heres
+
 # Initialize the program.
 pygame.init()
 
@@ -25,7 +32,7 @@ pygame.display.set_caption('Sudoku')
 
 clock = pygame.time.Clock()
 
-clickableOjbects = []
+inptObjects = []
 
 def drawText(labelText, xPos, yPos, thisType):
 	font = pygame.font.Font('freesansbold.ttf', 25)
@@ -33,12 +40,14 @@ def drawText(labelText, xPos, yPos, thisType):
 		thisColor =  (117, 58, 14)
 	elif thisType == "Back":
 		thisColor =  (0, 0, 0)
+	elif thisType == "Red":
+		thisColor =  (132, 21, 0)#(245, 57, 12)
 	text = font.render(labelText, True, thisColor)
 	textRect = text.get_rect()
-	textRect.center = (xPos, yPos)
+	textRect.center = (xPos, yPos+3)
 	return screen.blit(text, textRect)
 
-def checkValue(number, ROW, COL):
+def checkValue(number, ROW, COL): # Adapted from TechWithTim
 		# Check the row
 		for col in range(9):
 			if numberArray[ROW][col] == number and COL != col:
@@ -75,19 +84,23 @@ class numberPicker():
 			if mouseY > self.yPos  - self.size/2 and mouseY < self.yPos + self.size/2:
 				self.state = "Clicked"
 
-		else: self.state = "Nothing"
+		elif self.state != "WRONG":
+			# if checkValue(inputArray[self.row][self.col], self.row, self.col) == False:
+			# 	inputArray[self.row][self.col] = 0
+			self.state = "Nothing"
 
 	def processMouse(self, inputN):
 		mouseX, mouseY = pygame.mouse.get_pos()
 
-		if self.state == "Clicked":
+		# Here, make sure you can input another value after you got it wrong, WITHOUT reclicking the box
+		if self.state == "Clicked" or self.state == "WRONG":
 			#Inputing a number from click!
 			if inputN == 0:
 				numberArray[self.row][self.col] = inputN
 				inputArray[self.row][self.col] = inputN
 				self.state = "Nothing"
 				return None
-				
+
 			boole = checkValue(inputN, self.row, self.col)
 			if boole: #Returns True
 				numberArray[self.row][self.col] = inputN
@@ -96,49 +109,9 @@ class numberPicker():
 				return None
 			else:
 				self.state = "WRONG"
-
-		"""#self.state = "Nothing"
-		for obj in clickableOjbects:
-			if obj.state == "Clicked":
-				return
-		if self.state != "Clicked" and mouseX > self.xPos  - self.size/2 and mouseX < self.xPos + self.size/2:
-			if mouseY > self.yPos - self.size/2 and mouseY < self.yPos + self.size/2:
-				#self.state = "Nothing"
-				boole = checkValue(inputN, self.row, self.col)
-				if boole: #Returns True
-					numberArray[self.row][self.col] = inputN
-
-					# Get rid of this object because this piece is solved DO NOT DO THIS BECUASE IT CAN BE WRONG
-					# localCounter = 0
-					# for obj in clickableOjbects:
-					# 	if obj.row == self.row and obj.col == self.col:
-					# 		clickableOjbects.pop(localCounter)
-					# 	localCounter+=1
-
-					# what is this here!
-					for col in range(9):
-						pygame.draw.rect(screen, (255,0,0), ((col*40 + MARGIN) - self.size/2, self.yPos - self.size/2, self.size, self.size), 3)
-
-					# # Check the col
-					# for row in range(9):
-					# 	if numberArray[row][COL] == number and ROW != row:
-					# 		return False
-
-					# # Check box
-					# boxX = COL // 3
-					# boxY = ROW // 3
-
-					# for i in range(boxY*3, boxY*3 + 3):
-					# 	for j in range(boxX * 3, boxX*3 + 3):
-					# 		if numberArray[i][j] == number and i != ROW and j != COL:
-					# 			return False
+				#inputArray[self.row][self.col] = inputN
 
 
-					return None
-
-				else:
-					self.state = "WRONG"
-				#self.state = "WRONG"""
 		return None
 
 	def helper(self):
@@ -147,28 +120,33 @@ class numberPicker():
 		if mouseX > self.xPos  - self.size/2and mouseX < self.xPos + self.size  - self.size/2:
 			if mouseY > self.yPos  - self.size/2 and mouseY < self.yPos + self.size  - self.size/2:
 
-				highlighterColor = (255,160,122)#(255, 239, 224)#(197, 197, 197)#(238, 239, 243)
+				highlighterColor = (255, 243, 204)#(255, 239, 224)#(197, 197, 197)#(238, 239, 243)
 				for col in range(9):
 					# if numberArray[self.yPos][col] == 0:
-					pygame.draw.rect(screen, highlighterColor, ((col*40 + MARGIN) - self.size/2, self.yPos - self.size/2, self.size, self.size))
+					if col != self.col:
+						pygame.draw.rect(screen, highlighterColor, ((col*40 + MARGIN) - self.size/2, self.yPos - self.size/2, self.size, self.size))
 
 				for row in range(9):
 					# if numberArray[row][self.xPos] == 0:
-					pygame.draw.rect(screen, highlighterColor, (self.xPos - self.size/2, (row*40 + MARGIN) - self.size/2, self.size, self.size))
+					if row != self.row:
+						pygame.draw.rect(screen, highlighterColor, (self.xPos - self.size/2, (row*40 + MARGIN) - self.size/2, self.size, self.size))
 
 				boxX = self.col // 3
 				boxY = self.row // 3
 
 				for i in range(boxY*3, boxY*3 + 3):
 					for j in range(boxX * 3, boxX*3 + 3):
+						if i != self.row and j != self.col:
 						# if numberArray[i][j] == 0:
-						pygame.draw.rect(screen, highlighterColor, ((j*40 + MARGIN) - self.size/2, (i*40 + MARGIN) - self.size/2, self.size, self.size))
+							pygame.draw.rect(screen, highlighterColor, ((j*40 + MARGIN) - self.size/2, (i*40 + MARGIN) - self.size/2, self.size, self.size))
 
 	def draw(self):
 		if self.state == "Nothing":
-			None#self.helper()
+			self.helper()
 		elif self.state == "WRONG":
-			pygame.draw.rect(screen, (255,0,0), (self.xPos - self.size/2, self.yPos - self.size/2, self.size, self.size), 3)
+			#m = 4#(245, 57, 12)
+			pygame.draw.rect(screen, (246, 60, 81) , (self.xPos - self.size/2, self.yPos - self.size/2, self.size, self.size))
+			drawText("X", self.xPos, self.yPos, "Red")
 		elif self.state == "Clicked":
 			#self.helper()
 			thisSize = 6
@@ -177,7 +155,7 @@ class numberPicker():
 for row in range(9):
 	for col in range(9):
 		if numberArray[row][col] == 0:
-			clickableOjbects.append(numberPicker(row, col))
+			inptObjects.append(numberPicker(row, col))
 
 startArray = numberArray
 
@@ -195,7 +173,8 @@ def drawNumbers():
 	pygame.draw.rect(screen, (230,210,185), (260, 20, 120, 120))
 	pygame.draw.rect(screen, (230,210,185), (140, 140, 120, 120))
 
-	for obj in clickableOjbects:
+	
+	for obj in inptObjects:
 		obj.draw()
 
 	for row in range(9):
@@ -205,7 +184,7 @@ def drawNumbers():
 			if startArray[row][col] > 0:
 				drawText(str(numberArray[row][col]), col*40 + MARGIN,row*40 + MARGIN, "Back")
 			if inputArray[row][col] > 0:
-				drawText(str(numberArray[row][col]), col*40 + MARGIN,row*40 + MARGIN, "Input")
+				drawText(str(inputArray[row][col]), col*40 + MARGIN,row*40 + MARGIN, "Input")
 
 	for line in range(10):
 		pygame.draw.line(screen, (0, 0, 0), (20 + (line*40), 20), (20 + (line*40), 380))
@@ -219,68 +198,91 @@ def drawNumbers():
 					return False
 				gameOver = True
 
+def restartGame():
+	global gameOver
+	global numberArray
+	global inputArray
+	global inptObjects
+	global startArray
+
+	gameOver = False
+
+	numberArray = generatePuzzle([[random.randint(1, 9), 0, 0, 0, 0, 0, 0, 0 ,0],[0, 0, 0,  random.randint(1, 9), 0, 0, 0, 0 ,0],[0, 0, 0, 0, 0, 0,  random.randint(1, 9), 0 ,0],[0,  random.randint(1, 9), 0, 0, 0, 0, 0, 0 ,0],[0, 0, 0, 0,  random.randint(1, 9), 0, 0, 0 ,0],[0, 0, 0, 0, 0, 0, 0,  random.randint(1, 9) ,0],[0, 0,  random.randint(1, 9), 0, 0, 0, 0, 0 ,0],[0, 0, 0, 0, 0,  random.randint(1, 9), 0, 0 ,0],[0, 0, 0, 0, 0, 0, 0, 0 , random.randint(1, 9)]])
+	inputArray = []
+	for rows in range(9):
+		inputArray.append([0, 0, 0, 0, 0, 0, 0, 0, 0])
+
+	inptObjects = []
+
+	for row in range(9):
+		for col in range(9):
+			if numberArray[row][col] == 0:
+				inptObjects.append(numberPicker(row, col))
+	
+	startArray = numberArray
+
+	updateDisplay()
+
 # Main loop to continuously draw objects and process user input.
 def updateDisplay():
 	timeTracker = 0
 	global gameOver
+
 	while not gameOver:
-		timeTracker += 1
 		mouseX, mouseY = pygame.mouse.get_pos()
 
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				pygame.quit()
 				sys.exit()
-
-			if event.type == pygame.KEYDOWN:
+			elif event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_q:
 					pygame.quit()
 					sys.exit()
-				#
 			elif event.type == pygame.KEYUP:
 				if event.key == pygame.K_g:
 					None#generatePuzzle()
 				elif event.key == pygame.K_1:
-					for obj in clickableOjbects: 
+					for obj in inptObjects: 
 						obj.processMouse(1)
 				elif event.key == pygame.K_2:
-					for obj in clickableOjbects: 
+					for obj in inptObjects: 
 						obj.processMouse(2)
 				elif event.key == pygame.K_3:
-					for obj in clickableOjbects: 
+					for obj in inptObjects: 
 						obj.processMouse(3)
 				elif event.key == pygame.K_4:
-					for obj in clickableOjbects: 
+					for obj in inptObjects: 
 						obj.processMouse(4)
 				elif event.key == pygame.K_5:
-					for obj in clickableOjbects: 
+					for obj in inptObjects: 
 						obj.processMouse(5)
 				elif event.key == pygame.K_6:
-					for obj in clickableOjbects: 
+					for obj in inptObjects: 
 						obj.processMouse(6)
 				elif event.key == pygame.K_7:
-					for obj in clickableOjbects: 
+					for obj in inptObjects: 
 						obj.processMouse(7)
 				elif event.key == pygame.K_8:
-					for obj in clickableOjbects: 
+					for obj in inptObjects: 
 						obj.processMouse(8)
 				elif event.key == pygame.K_9:
-					for obj in clickableOjbects: 
+					for obj in inptObjects: 
 						obj.processMouse(9)
 				elif event.key == pygame.K_0:
-					for obj in clickableOjbects: 
+					for obj in inptObjects: 
 						obj.processMouse(0)
 
-			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-				print("CLICKED")
-				for obj in clickableOjbects:
+			elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+				for obj in inptObjects:
 					obj.state = "Nothing"
 					obj.clickedAction()
-
+			
 		drawNumbers()
-
+		#drawText("Time: " + str(round(timeTracker/100)), 0, 10, "Back")
 		pygame.display.update()
-		clock.tick(30)
+		clock.tick(60)
+		#timeTracker += 8.3#16.66666666667
 
 	#Stop processing coverField, wait for user to restart the game.
 	while gameOver: 
@@ -289,14 +291,14 @@ def updateDisplay():
 				pygame.quit()
 				sys.exit()
 			elif event.type == pygame.KEYUP:
-				pass#HEREif  event.key == pygame.K_SPACE:
-					#startGame()
+				if  event.key == pygame.K_SPACE:
+					restartGame()
 			
-		gameDisplay.fill(backgroudColour)
-
+		screen.fill(backgroundColour)
+		#secs = round(timeTracker / 1000)
 		#drawGame()
-		drawText("Press space to restart.", 175, 175)
-		drawText("Time: " + str(timeTracker), 175, 210)
+		drawText("Press space to restart.", 175, 175, "Back")
+		#drawText("Time: " + str(secs), 175, 210, "Back")
 
 		pygame.display.flip()
 
