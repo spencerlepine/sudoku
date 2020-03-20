@@ -14,11 +14,11 @@ pygame.init()
 
 # Define initial variable values.
 WIN_WIDTH = 400
-WIN_HEIGHT = 400
+WIN_HEIGHT = 400 + 50 # 50px for the timer
 MARGIN = 40
 gameOver = False
 
-numberArray = generatePuzzle([[random.randint(1, 9), 0, 0, 0, 0, 0, 0, 0 ,0],[0, 0, 0,  random.randint(1, 9), 0, 0, 0, 0 ,0],[0, 0, 0, 0, 0, 0,  random.randint(1, 9), 0 ,0],[0,  random.randint(1, 9), 0, 0, 0, 0, 0, 0 ,0],[0, 0, 0, 0,  random.randint(1, 9), 0, 0, 0 ,0],[0, 0, 0, 0, 0, 0, 0,  random.randint(1, 9) ,0],[0, 0,  random.randint(1, 9), 0, 0, 0, 0, 0 ,0],[0, 0, 0, 0, 0,  random.randint(1, 9), 0, 0 ,0],[0, 0, 0, 0, 0, 0, 0, 0 , random.randint(1, 9)]])
+numberArray = generatePuzzle([[random.randint(1, 9), 0, 0, 0, 0, 0, 0, 0 ,0],[0, 0, 0, random.randint(1, 9), 0, 0, 0, 0 ,0],[0, 0, 0, 0, 0, 0, random.randint(1, 9), 0 ,0],[0, random.randint(1, 9), 0, 0, 0, 0, 0, 0 ,0],[0, 0, 0, 0, random.randint(1, 9), 0, 0, 0 ,0],[0, 0, 0, 0, 0, 0, 0, random.randint(1, 9) ,0],[0, 0, random.randint(1, 9), 0, 0, 0, 0, 0 ,0],[0, 0, 0, 0, 0, random.randint(1, 9), 0, 0 ,0],[0, 0, 0, 0, 0, 0, 0, 0 , random.randint(1, 9)]])
 inputArray = []
 for rows in range(9):
 	inputArray.append([0, 0, 0, 0, 0, 0, 0, 0, 0])
@@ -30,6 +30,7 @@ screen.fill(backgroundColour)
 
 pygame.display.set_caption('Sudoku')
 
+start_time = time.time()
 clock = pygame.time.Clock()
 
 inptObjects = []
@@ -37,11 +38,13 @@ inptObjects = []
 def drawText(labelText, xPos, yPos, thisType):
 	font = pygame.font.Font('freesansbold.ttf', 25)
 	if thisType == "Input":
-		thisColor =  (117, 58, 14)
+		thisColor = (52, 72, 97)#(117, 58, 14)
 	elif thisType == "Back":
-		thisColor =  (0, 0, 0)
+		thisColor = (0, 0, 0)
 	elif thisType == "Red":
-		thisColor =  (132, 21, 0)#(245, 57, 12)
+		thisColor = (132, 21, 0)#(245, 57, 12)
+	elif thisType == "Timer":
+		thisColor = (148, 163, 183)
 	text = font.render(labelText, True, thisColor)
 	textRect = text.get_rect()
 	textRect.center = (xPos, yPos+3)
@@ -80,8 +83,8 @@ class numberPicker():
 
 	def clickedAction(self):
 		mouseX, mouseY = pygame.mouse.get_pos()
-		if mouseX > self.xPos  - self.size/2 and mouseX < self.xPos + self.size/2:
-			if mouseY > self.yPos  - self.size/2 and mouseY < self.yPos + self.size/2:
+		if mouseX > self.xPos - self.size/2 and mouseX < self.xPos + self.size/2:
+			if mouseY > self.yPos - self.size/2 and mouseY < self.yPos + self.size/2:
 				self.state = "Clicked"
 
 		elif self.state != "WRONG":
@@ -117,10 +120,10 @@ class numberPicker():
 	def helper(self):
 		mouseX, mouseY = pygame.mouse.get_pos()
 
-		if mouseX > self.xPos  - self.size/2and mouseX < self.xPos + self.size  - self.size/2:
-			if mouseY > self.yPos  - self.size/2 and mouseY < self.yPos + self.size  - self.size/2:
+		if mouseX > self.xPos - self.size/2and mouseX < self.xPos + self.size - self.size/2:
+			if mouseY > self.yPos - self.size/2 and mouseY < self.yPos + self.size - self.size/2:
 
-				highlighterColor = (255, 243, 204)#(255, 239, 224)#(197, 197, 197)#(238, 239, 243)
+				highlighterColor = (206, 229, 255)#(255, 243, 204)#(255, 239, 224)#(197, 197, 197)#(238, 239, 243)
 				for col in range(9):
 					# if numberArray[self.yPos][col] == 0:
 					if col != self.col:
@@ -142,7 +145,8 @@ class numberPicker():
 
 	def draw(self):
 		if self.state == "Nothing":
-			self.helper()
+			pass
+			#self.helper()
 		elif self.state == "WRONG":
 			#m = 4#(245, 57, 12)
 			pygame.draw.rect(screen, (246, 60, 81) , (self.xPos - self.size/2, self.yPos - self.size/2, self.size, self.size))
@@ -150,7 +154,7 @@ class numberPicker():
 		elif self.state == "Clicked":
 			#self.helper()
 			thisSize = 6
-			pygame.draw.rect(screen, (255,165,0), (self.xPos - self.size/2 + thisSize/2 - 1, self.yPos - self.size/2 + thisSize/2 - 1, self.size - thisSize + 2, self.size - thisSize + 2 ), 6)
+			pygame.draw.rect(screen, (255,165,0), (self.xPos - self.size/2 + thisSize/2 - 1, self.yPos - self.size/2 + thisSize/2 - 1, self.size - thisSize + 2, self.size - thisSize + 2), 6)
 			
 for row in range(9):
 	for col in range(9):
@@ -159,19 +163,32 @@ for row in range(9):
 
 startArray = numberArray
 
-def drawNumbers():
-	screen.fill(backgroundColour)
-	#Gray color (probably too dark anyways):(125, 125, 125)
-	pygame.draw.rect(screen, (200,150,70), (140, 20, 120, 120))
-	pygame.draw.rect(screen, (200,150,70), (140, 260, 120, 120))
-	pygame.draw.rect(screen, (200,150,70), (20, 140, 120, 120))
-	pygame.draw.rect(screen, (200,150,70), (260, 140, 120, 120))
+def drawTimer():
+	global timeElapsed, start_time
 
-	pygame.draw.rect(screen, (230,210,185), (20, 20, 120, 120))
-	pygame.draw.rect(screen, (230,210,185), (260, 260, 120, 120))
-	pygame.draw.rect(screen, (230,210,185), (20, 260, 120, 120))
-	pygame.draw.rect(screen, (230,210,185), (260, 20, 120, 120))
-	pygame.draw.rect(screen, (230,210,185), (140, 140, 120, 120))
+	elapsed_time = time.time() - start_time
+	#time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
+
+	#pygame.draw.rect(screen, (200,150,70), (140, 20, 120, 120))
+	drawText(str(time.strftime("%M:%S", time.gmtime(elapsed_time))), 60, WIN_HEIGHT - 37, "Timer")
+
+
+def drawNumbers():
+	yMarg = 0
+	color1 = (200,150,70)
+	color2 = (230,210,185)
+	gray = (238, 236, 224)
+	#Gray color (probably too dark anyways):(125, 125, 125)
+	pygame.draw.rect(screen, (255, 255, 255), (140, 20 + yMarg, 120, 120))
+	pygame.draw.rect(screen, (255, 255, 255), (140, 260 + yMarg, 120, 120))
+	pygame.draw.rect(screen, (255, 255, 255), (20, 140 + yMarg, 120, 120))
+	pygame.draw.rect(screen, (255, 255, 255), (260, 140 + yMarg, 120, 120))
+
+	pygame.draw.rect(screen, (238, 236, 224) , (20, 20 + yMarg, 120, 120))
+	pygame.draw.rect(screen, (238, 236, 224), (260, 260 + yMarg, 120, 120))
+	pygame.draw.rect(screen, (238, 236, 224), (20, 260 + yMarg, 120, 120))
+	pygame.draw.rect(screen, (238, 236, 224), (260, 20 + yMarg, 120, 120))
+	pygame.draw.rect(screen, (238, 236, 224), (140, 140 + yMarg, 120, 120))
 
 	
 	for obj in inptObjects:
@@ -182,13 +199,13 @@ def drawNumbers():
 			# if numberArray[row][col] > 0:
 			# 	drawText(str(numberArray[row][col]), col*40 + MARGIN,row*40 + MARGIN, "Input")
 			if startArray[row][col] > 0:
-				drawText(str(numberArray[row][col]), col*40 + MARGIN,row*40 + MARGIN, "Back")
+				drawText(str(numberArray[row][col]), col*40 + MARGIN,row*40 + MARGIN + yMarg, "Back")
 			if inputArray[row][col] > 0:
-				drawText(str(inputArray[row][col]), col*40 + MARGIN,row*40 + MARGIN, "Input")
+				drawText(str(inputArray[row][col]), col*40 + MARGIN,row*40 + MARGIN + yMarg, "Input")
 
 	for line in range(10):
-		pygame.draw.line(screen, (0, 0, 0), (20 + (line*40), 20), (20 + (line*40), 380))
-		pygame.draw.line(screen, (0, 0, 0), (20, 20 + (line*40)), (380, 20 + (line*40)))
+		pygame.draw.line(screen, (0, 0, 0), (20 + (line*40), 20 + yMarg), (20 + (line*40), 380 + yMarg))
+		pygame.draw.line(screen, (0, 0, 0), (20, 20 + (line*40) + yMarg), (380, 20 + (line*40) + yMarg))
 
 	global gameOver
 	if not any(0 in sublist for sublist in numberArray):
@@ -198,16 +215,34 @@ def drawNumbers():
 					return False
 				gameOver = True
 
+def drawArray():
+	yMarg = 0
+	for row in range(9):
+		for col in range(9):
+			# if numberArray[row][col] > 0:
+			# 	drawText(str(numberArray[row][col]), col*40 + MARGIN,row*40 + MARGIN, "Input")
+			if startArray[row][col] > 0:
+				drawText(str(numberArray[row][col]), col*40 + MARGIN,row*40 + MARGIN + yMarg, "Back")
+			if inputArray[row][col] > 0:
+				drawText(str(inputArray[row][col]), col*40 + MARGIN,row*40 + MARGIN + yMarg, "Back")
+
+	for line in range(10):
+		pygame.draw.line(screen, (0, 0, 0), (20 + (line*40), 20 + yMarg), (20 + (line*40), 380 + yMarg))
+		pygame.draw.line(screen, (0, 0, 0), (20, 20 + (line*40) + yMarg), (380, 20 + (line*40) + yMarg))
+
+
 def restartGame():
 	global gameOver
 	global numberArray
 	global inputArray
 	global inptObjects
 	global startArray
+	global start_time
 
 	gameOver = False
+	start_time = time.time()
 
-	numberArray = generatePuzzle([[random.randint(1, 9), 0, 0, 0, 0, 0, 0, 0 ,0],[0, 0, 0,  random.randint(1, 9), 0, 0, 0, 0 ,0],[0, 0, 0, 0, 0, 0,  random.randint(1, 9), 0 ,0],[0,  random.randint(1, 9), 0, 0, 0, 0, 0, 0 ,0],[0, 0, 0, 0,  random.randint(1, 9), 0, 0, 0 ,0],[0, 0, 0, 0, 0, 0, 0,  random.randint(1, 9) ,0],[0, 0,  random.randint(1, 9), 0, 0, 0, 0, 0 ,0],[0, 0, 0, 0, 0,  random.randint(1, 9), 0, 0 ,0],[0, 0, 0, 0, 0, 0, 0, 0 , random.randint(1, 9)]])
+	numberArray = generatePuzzle([[random.randint(1, 9), 0, 0, 0, 0, 0, 0, 0 ,0],[0, 0, 0, random.randint(1, 9), 0, 0, 0, 0 ,0],[0, 0, 0, 0, 0, 0, random.randint(1, 9), 0 ,0],[0, random.randint(1, 9), 0, 0, 0, 0, 0, 0 ,0],[0, 0, 0, 0, random.randint(1, 9), 0, 0, 0 ,0],[0, 0, 0, 0, 0, 0, 0, random.randint(1, 9) ,0],[0, 0, random.randint(1, 9), 0, 0, 0, 0, 0 ,0],[0, 0, 0, 0, 0, random.randint(1, 9), 0, 0 ,0],[0, 0, 0, 0, 0, 0, 0, 0 , random.randint(1, 9)]])
 	inputArray = []
 	for rows in range(9):
 		inputArray.append([0, 0, 0, 0, 0, 0, 0, 0, 0])
@@ -222,6 +257,7 @@ def restartGame():
 	startArray = numberArray
 
 	updateDisplay()
+
 
 # Main loop to continuously draw objects and process user input.
 def updateDisplay():
@@ -277,12 +313,17 @@ def updateDisplay():
 				for obj in inptObjects:
 					obj.state = "Nothing"
 					obj.clickedAction()
-			
+		
+		screen.fill(backgroundColour)	
 		drawNumbers()
+		drawTimer()
 		#drawText("Time: " + str(round(timeTracker/100)), 0, 10, "Back")
 		pygame.display.update()
-		clock.tick(60)
+
 		#timeTracker += 8.3#16.66666666667
+		clock.tick(60)
+
+	finishTime = time.time() - start_time
 
 	#Stop processing coverField, wait for user to restart the game.
 	while gameOver: 
@@ -291,14 +332,17 @@ def updateDisplay():
 				pygame.quit()
 				sys.exit()
 			elif event.type == pygame.KEYUP:
-				if  event.key == pygame.K_SPACE:
-					restartGame()
+				if event.key == pygame.K_SPACE:
+					restartGame() # HERE, reset startime variable
 			
 		screen.fill(backgroundColour)
 		#secs = round(timeTracker / 1000)
 		#drawGame()
-		drawText("Press space to restart.", 175, 175, "Back")
-		#drawText("Time: " + str(secs), 175, 210, "Back")
+		drawArray()
+		thisRectW = 280
+		pygame.draw.rect(screen, (239, 255, 234), (WIN_WIDTH/2 - thisRectW/2, (WIN_HEIGHT - 50)/2 - 30/2, thisRectW, 30))
+		drawText("Press space to restart.", WIN_WIDTH/2, (WIN_HEIGHT - 50)/2, "Back")
+		drawText(("Completed in: " + str(time.strftime("%M:%S", time.gmtime(finishTime)))), WIN_WIDTH/2, WIN_HEIGHT - 37, "Timer")
 
 		pygame.display.flip()
 
